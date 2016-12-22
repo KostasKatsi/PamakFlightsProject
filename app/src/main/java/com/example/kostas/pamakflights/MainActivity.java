@@ -25,8 +25,11 @@ public class MainActivity extends AppCompatActivity {
 
     private AutoCompleteTextView autoComplete;
     private ArrayAdapter<String> adapter;
-    private AutoCompleteTextView autoComplete1;
+    private AutoCompleteTextView autoComplete2;
+    private AutoCompleteTextView autoComplete3;
+    private AutoCompleteTextView autoComplete4;
     private ArrayAdapter<String> adapter1;
+    private ArrayAdapter<String> adapter2;
     private HttpURLConnection urlConnection = null;
     private BufferedReader reader = null;
     private String countryJsonStr = null;
@@ -61,14 +64,19 @@ public class MainActivity extends AppCompatActivity {
             autoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
             autoComplete.setAdapter(adapter);
             autoComplete.setThreshold(1);
+            autoComplete3 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView3);
+            autoComplete3.setAdapter(adapter);
+            autoComplete3.setThreshold(1);
 
             apikey = readKeyFromFile();
 
-            autoComplete.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+
+            autoComplete2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
+            autoComplete2.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 
                 @Override
                 public void onFocusChange(View v, boolean hasFocus){
-                    if(!hasFocus && !autoComplete.getText().toString().equals(""))
+                    if(hasFocus && !autoComplete.getText().toString().equals(""))
                     {
                         label.clear();
                         value.clear();
@@ -84,9 +92,38 @@ public class MainActivity extends AppCompatActivity {
                         new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
                     }
                     adapter1 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
-                    autoComplete1 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
-                    autoComplete1.setAdapter(adapter1);
-                    autoComplete1.setThreshold(1);
+                    autoComplete2.setAdapter(adapter1);
+                    autoComplete2.setThreshold(1);
+
+                }
+
+
+            });
+
+            autoComplete4 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView4);
+            autoComplete4.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+
+                @Override
+                public void onFocusChange(View v, boolean hasFocus){
+
+                    if(hasFocus && !autoComplete.getText().toString().equals("") && !autoComplete3.getText().toString().equals(""))
+                    {
+                        label.clear();
+                        value.clear();
+                        input = null;
+                        input = autoComplete3.getText().toString();
+                        for (int i=0;i<countryNames.size();i++)
+                        {
+                            if (input.equals(countryNames.get(i)))
+                                index = i;
+
+                        }
+
+                        new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
+                    }
+                    adapter2 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
+                    autoComplete4.setAdapter(adapter2);
+                    autoComplete4.setThreshold(1);
 
                 }
 
