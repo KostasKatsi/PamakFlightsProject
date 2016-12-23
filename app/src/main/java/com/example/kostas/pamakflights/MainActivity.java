@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,10 +39,14 @@ public class MainActivity extends AppCompatActivity {
     int index = 0;
     private ArrayList<String> countryNames = new ArrayList<String>();
     private ArrayList<String> countryCodes = new ArrayList<String>();
-    private ArrayList<String> value = new ArrayList<String>();
+    private String code = null;
+    private String origin =null;
+    private String destination = null;
     private ArrayList<String> label = new ArrayList<String>();
     private Context mContext;
     private InputStream inp= null;
+    private Button btn = null;
+    private Button btn2 = null;
 
 
     @Override
@@ -79,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
                     if(hasFocus && !autoComplete.getText().toString().equals(""))
                     {
                         label.clear();
-                        value.clear();
                         input = null;
                         input = autoComplete.getText().toString();
                         for (int i=0;i<countryNames.size();i++)
@@ -91,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
                         new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
                     }
+                    origin = code;
                     adapter1 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete2.setAdapter(adapter1);
                     autoComplete2.setThreshold(1);
@@ -109,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                     if(hasFocus && !autoComplete.getText().toString().equals("") && !autoComplete3.getText().toString().equals(""))
                     {
                         label.clear();
-                        value.clear();
                         input = null;
                         input = autoComplete3.getText().toString();
                         for (int i=0;i<countryNames.size();i++)
@@ -121,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
                         new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
                     }
+                    destination = code;
                     adapter2 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete4.setAdapter(adapter2);
                     autoComplete4.setThreshold(1);
@@ -128,6 +133,22 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
+            });
+
+            btn = (Button)findViewById(R.id.button2);
+            btn.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+
+                }
+            });
+
+            btn2 = (Button)findViewById(R.id.button);
+            btn2.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+
+                }
             });
 
 
@@ -221,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int i=0;i<result.length();i++)
                 {
                     JSONObject apotelesmata = result.getJSONObject(i);
-                    value.add(apotelesmata.getString("value"));
+                    code = apotelesmata.getString("value");
                     label.add(apotelesmata.getString("label"));
                 }
 
