@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private InputStream inp= null;
     private Button btn = null;
     private Button btn2 = null;
+    private RelativeLayout layout = null;
 
 
     @Override
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
 
-                        new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
+                        new JSONairports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
                     }
                     origin = code;
                     adapter1 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus){
 
-                    if(hasFocus && !autoComplete.getText().toString().equals("") && !autoComplete3.getText().toString().equals(""))
+                    if(hasFocus && !autoComplete3.getText().toString().equals(""))
                     {
                         label.clear();
                         input = null;
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
 
-                        new JSONTask().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
+                        new JSONairports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
                     }
                     destination = code;
                     adapter2 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
@@ -135,21 +137,30 @@ public class MainActivity extends AppCompatActivity {
 
             });
 
-            btn = (Button)findViewById(R.id.button2);
+            btn = (Button)findViewById(R.id.more);
+            layout = (RelativeLayout)findViewById(R.id.hidden);
             btn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-
+                    if(layout.getVisibility() != View.VISIBLE) {
+                        layout.setVisibility(View.VISIBLE);
+                        btn.setText("Λιγοτερα...");
+                    }
+                    else
+                    {
+                        layout.setVisibility(View.GONE);
+                        btn.setText("Περισσοτερα...");
+                    }
                 }
             });
-
-            btn2 = (Button)findViewById(R.id.button);
-            btn2.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-
-                }
-            });
+//
+//            btn2 = (Button)findViewById(R.id.button);
+//            btn2.setOnClickListener(new View.OnClickListener(){
+//                @Override
+//                public void onClick(View v){
+//
+//                }
+//            });
 
 
 
@@ -202,18 +213,82 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
-    public class JSONTask extends AsyncTask<String,String,String>
+    public class JSONairports extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
         {
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
-                //MODIFIED FOR CITY OF THESSALONIKI, GREECE
+
                 URL url = new URL(params[0]);
 
-                // Create the request to OpenWeatherMap, and open the connection
+                // Create the request, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                countryJsonStr = buffer.toString();
+
+
+
+                JSONArray result = new JSONArray(countryJsonStr);
+
+
+                for (int i=0;i<result.length();i++)
+                {
+                    JSONObject apotelesmata = result.getJSONObject(i);
+                    code = apotelesmata.getString("value");
+                    label.add(apotelesmata.getString("label"));
+                }
+
+
+
+
+                return countryJsonStr;
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally{
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("MainActivity", "Error closing stream", e);
+                    }
+                }
+            }
+            return null;
+        }
+
+    }
+
+    public class JSONresults extends AsyncTask<String,String,String>
+    {
+        protected String doInBackground(String... params)
+        {
+            try {
+
+                URL url = new URL(params[0]);
+
+                // Create the request , and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
