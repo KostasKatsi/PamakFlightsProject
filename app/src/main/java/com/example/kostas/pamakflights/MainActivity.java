@@ -1,15 +1,20 @@
 package com.example.kostas.pamakflights;
 
-import android.content.Context;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.CheckBox;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,35 +26,40 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static com.example.kostas.pamakflights.BuildConfig.FLIGHTS_API_KEY;
+import static com.example.kostas.pamakflights.BuildConfig.IATA_API_KEY;
 
 public class MainActivity extends AppCompatActivity {
 
     private AutoCompleteTextView autoComplete;
-    private ArrayAdapter<String> adapter;
     private AutoCompleteTextView autoComplete2;
     private AutoCompleteTextView autoComplete3;
     private AutoCompleteTextView autoComplete4;
     private ArrayAdapter<String> adapter1;
     private ArrayAdapter<String> adapter2;
-    private HttpURLConnection urlConnection = null;
-    private BufferedReader reader = null;
-    private String countryJsonStr = null;
     private String input = null;
-    private String apikey = null;
-    int index = 0;
-    private ArrayList<String> countryNames = new ArrayList<String>();
-    private ArrayList<String> countryCodes = new ArrayList<String>();
-    private String code = null;
-    private String origin =null;
+    private String apiKey = null;
+    private int index = 0;
+    private ArrayList<String> countryNames = new ArrayList<>();
+    private ArrayList<String> countryCodes = new ArrayList<>();
+    private String origin = null;
     private String destination = null;
-    private ArrayList<String> label = new ArrayList<String>();
-    private Context mContext;
-    private InputStream inp= null;
-    private Button btn = null;
-    private Button btn2 = null;
+    private ArrayList<String> label = new ArrayList<>();
+    private Button moreButton = null;
     private RelativeLayout layout = null;
-
+    private String formattedDepartureDate = null;
+    private String formattedArrivalDate = null;
+    private SimpleDateFormat sdf = null;
+    private TextView numOfAdults = null;
+    private TextView numOfKids = null;
+    private TextView numOfBabies = null;
+    private CheckBox nonstop = null;
+    private ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 countryCodes.add(codes.getString("alpha-2"));
             }
 
-            adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, countryNames);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, countryNames);
             autoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
             autoComplete.setAdapter(adapter);
             autoComplete.setThreshold(1);
@@ -75,8 +85,7 @@ public class MainActivity extends AppCompatActivity {
             autoComplete3.setAdapter(adapter);
             autoComplete3.setThreshold(1);
 
-            apikey = readKeyFromFile();
-
+            apiKey = FLIGHTS_API_KEY;
 
             autoComplete2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
             autoComplete2.setOnFocusChangeListener(new View.OnFocusChangeListener(){
@@ -94,17 +103,12 @@ public class MainActivity extends AppCompatActivity {
                                 index = i;
 
                         }
-
-                        new JSONairports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apiKey="+ apiKey +"&country="+countryCodes.get(index));
                     }
-                    origin = code;
-                    adapter1 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
+                    adapter1 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete2.setAdapter(adapter1);
                     autoComplete2.setThreshold(1);
-
                 }
-
-
             });
 
             autoComplete4 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView4);
@@ -122,56 +126,112 @@ public class MainActivity extends AppCompatActivity {
                         {
                             if (input.equals(countryNames.get(i)))
                                 index = i;
-
                         }
 
-                        new JSONairports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?"+apikey+"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apiKey="+ apiKey +"&country="+countryCodes.get(index));
                     }
-                    destination = code;
-                    adapter2 = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1, label);
+                    adapter2 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete4.setAdapter(adapter2);
                     autoComplete4.setThreshold(1);
-
                 }
 
 
             });
 
-            btn = (Button)findViewById(R.id.more);
+            moreButton = (Button)findViewById(R.id.more);
             layout = (RelativeLayout)findViewById(R.id.hidden);
-            btn.setOnClickListener(new View.OnClickListener(){
+            moreButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
                     if(layout.getVisibility() != View.VISIBLE) {
                         layout.setVisibility(View.VISIBLE);
-                        btn.setText("Λιγοτερα...");
+                        moreButton.setText("Λιγοτερα...");
                     }
                     else
                     {
                         layout.setVisibility(View.GONE);
-                        btn.setText("Περισσοτερα...");
+                        moreButton.setText("Περισσοτερα...");
                     }
                 }
             });
-//
-//            btn2 = (Button)findViewById(R.id.button);
-//            btn2.setOnClickListener(new View.OnClickListener(){
-//                @Override
-//                public void onClick(View v){
-//
-//                }
-//            });
 
+            sdf = new SimpleDateFormat("yy-MM-DD");
 
+            CalendarView departureDate = (CalendarView) findViewById(R.id.departureDate);
+            departureDate.setMinDate(departureDate.getDate());
+            formattedDepartureDate = "20" + sdf.format(departureDate.getDate());
+            departureDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
+                public void onSelectedDayChange(@NonNull CalendarView departureDate, int year, int month, int day) {
+                    formattedDepartureDate = "20" + sdf.format(new Date(year, month, day));
+                }
+            });
 
+            CalendarView arrivalDate = (CalendarView) findViewById(R.id.arrivalDate);
+            arrivalDate.setMinDate(arrivalDate.getDate());
+            formattedArrivalDate = "20" + sdf.format(arrivalDate.getDate());
+            arrivalDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
+                public void onSelectedDayChange(@NonNull CalendarView arrivalDate, int year, int month, int day) {
+                    formattedArrivalDate = "20" + sdf.format(new Date(year, month, day));
+                }
+            });
+
+            numOfAdults = (TextView)findViewById(R.id.numOfAdults);
+            numOfKids = (TextView)findViewById(R.id.numOfKids);
+            numOfBabies = (TextView)findViewById(R.id.numOfBabies);
+
+            nonstop = (CheckBox)findViewById(R.id.nonstopValue);
+
+            progress = new ProgressDialog(this);
+            progress.setTitle("Αναζήτηση πτήσεων");
+            progress.setMessage("Παρακαλώ περιμένε...");
+            progress.setCancelable(false);
+
+            Button findButton = (Button)findViewById(R.id.find);
+            findButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    progress.show();
+
+                    String[] temp;
+                    if (!autoComplete2.getText().toString().equals("")) {
+                        temp = autoComplete2.getText().toString().split("\\[");
+                        origin = temp[1].replace("]", "");
+                    } else origin = null;
+                    if (!autoComplete4.getText().toString().equals("")) {
+                        temp = autoComplete4.getText().toString().split("\\[");
+                        destination = temp[1].replace("]", "");
+                    } else destination = null;
+                    Date d1 = null;
+                    Date d2 = null;
+                    try {
+                        d1 = sdf.parse(formattedDepartureDate);
+                        d2 = sdf.parse(formattedArrivalDate);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    if (origin == null) {
+                        Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει αφετηρία", Toast.LENGTH_SHORT).show();
+                    } else if (destination == null) {
+                        Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει προορισμό", Toast.LENGTH_SHORT).show();
+                    } else if (origin.equals(destination)) {
+                        Toast.makeText(MainActivity.this, "Η αφετηρία δεν μπορεί να είναι ίδια με τον προορισμό", Toast.LENGTH_SHORT).show();
+                    } else if (d1!=null && d2!=null && d2.before(d1)) {
+                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
+                                + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
+                                + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
+                        if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
+                        new jsonResults().execute(jsonPath);
+                    }
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
     }
     public String loadJSONFromAsset(String name) {
-        String json = null;
+        String json;
         try {
             InputStream is = getAssets().open(name+".json");
             int size = is.available();
@@ -186,164 +246,129 @@ public class MainActivity extends AppCompatActivity {
         return json;
     }
 
-    public String readKeyFromFile(){
-        BufferedReader reader = null;
+    public String httpRequest(String params) {
         try {
-            reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("Config.txt"), "UTF-8"));
+            HttpURLConnection urlConnection;
+            BufferedReader reader;
 
-            // do reading, usually loop until end of file reading
-            String mLine;
-            StringBuilder sb = new StringBuilder();
-            while ((mLine = reader.readLine()) != null) {
-                sb.append(mLine);
+            URL url;
+            url = new URL(params);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuilder buffer = new StringBuilder();
+
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line);
             }
-            return sb.toString();
+            return buffer.toString();
         } catch (IOException e) {
-            //log the exception
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
+            e.printStackTrace();
         }
         return null;
     }
 
-    public class JSONairports extends AsyncTask<String,String,String>
+    public class jsonAirports extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
         {
+            String countryJsonStr = null;
             try {
-
-                URL url = new URL(params[0]);
-
-                // Create the request, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                countryJsonStr = buffer.toString();
-
-
+                countryJsonStr = httpRequest(params[0]);
 
                 JSONArray result = new JSONArray(countryJsonStr);
 
-
                 for (int i=0;i<result.length();i++)
                 {
-                    JSONObject apotelesmata = result.getJSONObject(i);
-                    code = apotelesmata.getString("value");
-                    label.add(apotelesmata.getString("label"));
+                    JSONObject results = result.getJSONObject(i);
+                    label.add(results.getString("label"));
                 }
-
-
-
-
                 return countryJsonStr;
-            } catch (IOException e) {
-                e.printStackTrace();
-
             } catch (JSONException e) {
                 e.printStackTrace();
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("MainActivity", "Error closing stream", e);
-                    }
-                }
             }
-            return null;
+            return countryJsonStr;
         }
-
     }
 
-    public class JSONresults extends AsyncTask<String,String,String>
+    public class jsonResults extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
         {
             try {
+                JSONArray formattedFlights = new JSONArray();
+                String buffer = httpRequest(params[0]);
 
-                URL url = new URL(params[0]);
+                JSONArray results = new JSONObject(buffer).getJSONArray("results");
+                JSONObject flight;
+                JSONArray numOfFlights;
+                JSONObject flightDetails;
+                JSONArray outboundFlights;
 
-                // Create the request , and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
+                String flightDuration = null;
+                String midDestination = null;
 
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
+                buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + origin);
+                String formattedOrigin = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + destination);
+                String formattedDestination = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
 
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                for (int i=0; i<results.length(); i++) {
+                    flight = results.getJSONObject(i);
+                    formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
+                    numOfFlights = flight.getJSONArray("itineraries");
+                    for (int j=0; j<numOfFlights.length(); j++) {
+                        outboundFlights = numOfFlights.getJSONObject(j).getJSONObject("outbound").getJSONArray("flights");
+                        flightDetails = outboundFlights.getJSONObject(0);
+                        if (outboundFlights.length() > 1) {
+                            buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + outboundFlights.getJSONObject(0).getJSONObject("destination").getString("airport"));
+                            midDestination = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                        }
+                        buffer = httpRequest("https://iatacodes.org/api/v6/airlines?api_key=" + IATA_API_KEY + "&code=" + flightDetails.getString("operating_airline"));
+                        String company = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                        try {
+                            Date dStart = format.parse(flightDetails.getString("departs_at"));
+                            Date dEnd = format.parse(flightDetails.getString("arrives_at"));
+                            long diffM = (dEnd.getTime() - dStart.getTime()) / 1000 / 60;
+                            long diffH = diffM / 60;
+                            if (diffH != 0) {
+                                diffM = diffM - diffH * 60;
+                                if (diffM != 0) flightDuration = diffH + "h" + diffM + "mins";
+                                else flightDuration = diffH + "h";
+                            } else {
+                                flightDuration = diffM + "mins";
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                countryJsonStr = buffer.toString();
-
-
-
-                JSONArray result = new JSONArray(countryJsonStr);
-
-
-                for (int i=0;i<result.length();i++)
-                {
-                    JSONObject apotelesmata = result.getJSONObject(i);
-                    code = apotelesmata.getString("value");
-                    label.add(apotelesmata.getString("label"));
-                }
-
-
-
-
-                return countryJsonStr;
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("MainActivity", "Error closing stream", e);
+                        formattedFlights.getJSONObject(i).getJSONArray("flights").put(new JSONObject()
+                                .put("origin", formattedOrigin)
+                                .put("destination", formattedDestination)
+                                .put("company", company).put("departureTime", flightDetails.getString("departs_at"))
+                                .put("arrivalTime", flightDetails.getString("arrives_at"))
+                                .put("flightDuration", flightDuration)
+                                .put("seatsRemaining", flightDetails.getJSONObject("booking_info").getString("seats_remaining"))
+                                .put("intermediateStop", midDestination)
+                                .put("price", flight.getJSONObject("fare").getString("total_price") + " €"));
                     }
                 }
+                progress.dismiss();
+
+                Intent i = new Intent(getApplicationContext(), FlightResults.class);
+                i.putExtra("flights", formattedFlights.toString());
+                startActivity(i);
+                return "Success";
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
             return null;
         }
-
     }
 }
