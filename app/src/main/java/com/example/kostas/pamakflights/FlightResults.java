@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +21,7 @@ public class FlightResults extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_flight_results);
+
         Bundle extras = getIntent().getExtras();
         JSONObject flightData;
         if (extras != null) {
@@ -43,7 +45,14 @@ public class FlightResults extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        System.out.println(flightsArray);
+
+        TextView flightOriginDestination = (TextView) findViewById(R.id.originDestination);
+        try {
+            flightOriginDestination.setText(flightsArray.get(0).getString("origin") + "-" + flightsArray.get(0).getString("destination"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         FlightsAdapter mArrayAdapter = new FlightsAdapter(this, R.layout.list_item, flightsArray);
         ListView list = (ListView) findViewById(R.id.FlightsList);
         list.setAdapter(mArrayAdapter);
