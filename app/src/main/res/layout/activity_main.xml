@@ -19,27 +19,7 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="8"
-                android:width="400dp"
-                android:layout_below="@+id/text1"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="8"
-                android:width="400dp"
-                android:layout_below="@+id/textView"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textView2"
@@ -52,17 +32,6 @@
                 android:textSize="30sp" />
 
             <TextView
-
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Πόλη,Αεροδρόμιο"
-                android:layout_marginTop="20dp"
-                android:layout_below="@+id/autoCompleteTextView"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-            <TextView
                 android:id="@+id/text1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -72,8 +41,50 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
 
-            <TextView
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="8"
+                android:text="Greece"
+                android:width="400dp"
+                android:layout_below="@+id/text1"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Πόλη, Αεροδρόμιο"
+                android:layout_marginTop="20dp"
+                android:layout_below="@+id/autoCompleteTextView"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="8"
+                android:text="[SKG]"
+                android:width="400dp"
+                android:layout_below="@+id/textView"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Προορισμός:"
+                android:textSize="30sp"
+                android:layout_marginTop="38dp"
+                android:layout_below="@+id/autoCompleteTextView2"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
                 android:id="@+id/textView5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,6 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="8"
+                android:text="Greece"
                 android:width="400dp"
                 android:layout_below="@+id/textView5"
                 android:layout_alignParentLeft="true"
@@ -97,7 +109,7 @@
                 android:id="@+id/textView6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Πόλη,Αεροδρόμιο"
+                android:text="Πόλη, Αεροδρόμιο"
                 android:layout_marginTop="21dp"
                 android:layout_below="@+id/autoCompleteTextView3"
                 android:layout_alignParentLeft="true"
@@ -108,19 +120,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ems="8"
+                android:text="[ATH]"
                 android:width="400dp"
                 android:layout_below="@+id/textView6"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Προορισμός:"
-                android:textSize="30sp"
-                android:layout_marginTop="38dp"
-                android:layout_below="@+id/autoCompleteTextView2"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true" />
 
@@ -138,21 +140,21 @@
             <CalendarView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/calendarView"
+                android:id="@+id/departureDate"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/textView3"
-                android:layout_marginBottom="40dp"
+                android:layout_below="@+id/textView9"
+
                 />
 
             <CalendarView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/calendarView"
+                android:id="@+id/arrivalDate"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/textView9"
-
+                android:layout_below="@+id/textView3"
+                android:layout_marginBottom="40dp"
                 />
 
             <TextView
@@ -165,17 +167,17 @@
                 android:layout_marginTop="48dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/calendarView"/>
+                android:layout_below="@+id/departureDate"/>
 
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_below="@+id/calendarView"
+                android:layout_below="@+id/arrivalDate"
                 android:visibility="gone"
                 android:id="@+id/hidden">
 
                 <TextView
-                android:id="@+id/textView7"
+                android:id="@+id/adultslabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Αριθμός ενηλίκων (άτομα άνω των 12 ετών):"
@@ -192,15 +194,15 @@
                     android:inputType="number"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
-                    android:id="@+id/editText"
-                    android:layout_below="@+id/textView7" />
+                    android:id="@+id/numOfAdults"
+                    android:layout_below="@+id/adultslabel" />
 
                 <TextView
                 android:id="@+id/kidslabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Αριθμός παιδιών (2 έως 12 ετών):"
-                android:layout_below="@+id/editText"
+                android:layout_below="@+id/numOfAdults"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                  />
@@ -213,7 +215,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
 
-                android:id="@+id/kidsvalue"
+                android:id="@+id/numOfKids"
                 android:layout_below="@+id/kidslabel" />
 
                 <TextView
@@ -221,7 +223,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Αριθμός βρεφών (έως 2 ετών):"
-                android:layout_below="@+id/kidsvalue"
+                android:layout_below="@+id/numOfKids"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 />
@@ -234,15 +236,15 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
 
-                android:id="@+id/babyvalue"
+                android:id="@+id/numOfBabies"
                 android:layout_below="@+id/babylabel" />
 
                 <TextView
                 android:id="@+id/antapokrisiLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Εμφάνιση πτήσεων χωρίς ανταπόκριση:"
-                android:layout_below="@+id/babyvalue"
+                android:text="Απευθειας πτησεις:"
+                android:layout_below="@+id/numOfBabies"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 />
@@ -251,7 +253,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:id="@+id/antapokrisiValue"
+                android:id="@+id/nonstopValue"
                 android:layout_alignBaseline="@+id/antapokrisiLabel"
                 android:layout_alignBottom="@+id/antapokrisiLabel"
                 android:layout_toRightOf="@+id/antapokrisiLabel"
@@ -259,108 +261,6 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginStart="10dp" />
 
-                <TextView
-                android:id="@+id/nomismaLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Επιλογή νομίσματος για εμφάνιση τιμής:"
-                android:layout_marginTop="35dp"
-                android:layout_below="@+id/antapokrisiLabel"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                />
-
-
-                <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/nomismaLabel"
-                android:id="@+id/radiogroup"
-                >
-
-                    <RadioButton
-                    android:text="US"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/dollarButton"
-                    android:layout_weight="1"
-                    android:checked="true" />
-
-                    <RadioButton
-                    android:text="EUR"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/euroButton"
-                    android:checked="false" />
-
-                </RadioGroup>
-
-                <TextView
-                android:id="@+id/maxpriceLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ανώτατο χρηματικό όριο στην τελικη τιμή:"
-                android:layout_below="@+id/radiogroup"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                />
-
-                <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-
-                android:id="@+id/maxpriceValue"
-                android:layout_below="@+id/maxpriceLabel" />
-
-                <TextView
-                    android:id="@+id/classLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Επιλογή κατηγορίας θέσης:"
-                    android:layout_below="@+id/maxpriceValue"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    />
-
-                <RadioGroup
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_below="@+id/classLabel"
-                    android:id="@+id/radiogroup2">
-
-                    <RadioButton
-                        android:text="ECONOMY"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/economyButton"
-                        android:layout_weight="1"
-                        android:checked="true" />
-
-                    <RadioButton
-                        android:text="PREMIUM_ECONOMY"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/premiumButton"
-                        android:checked="false" />
-
-                    <RadioButton
-                        android:text="BUSINESS"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/businessButton"
-                        android:checked="false" />
-
-                    <RadioButton
-                        android:text="FIRST"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/firstButton"
-                        android:checked="false" />
-
-                </RadioGroup>
             </RelativeLayout>
 
             <Button
