@@ -30,7 +30,7 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
         JSONObject flight = getItem(position);
 
         //Inflate the view
-        if(convertView==null)
+        if(convertView == null)
         {
             flightView = new LinearLayout(getContext());
             String inflater = Context.LAYOUT_INFLATER_SERVICE;
@@ -38,24 +38,20 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
             vi = (LayoutInflater)getContext().getSystemService(inflater);
             vi.inflate(resource, flightView, true);
         }
-        else
-        {
-            flightView = (LinearLayout) convertView;
-        }
-        //Get the text boxes from the listitem.xml file
-        TextView alertText =(TextView)flightView.findViewById(R.id.txtAlertText);
-        TextView alertDate =(TextView)flightView.findViewById(R.id.txtAlertDate);
+        else flightView = (LinearLayout) convertView;
+        //Get the text boxes from the list_item.xml file
+        TextView alertText =(TextView)flightView.findViewById(R.id.departureDateText);
+        TextView alertDate =(TextView)flightView.findViewById(R.id.arrivalDateText);
 
         //Assign the appropriate data from our alert object above
         try {
             if (flight != null) {
-                alertText.setText(flight.getString("origin"));
-                alertDate.setText(flight.getString("destination"));
+                alertText.setText(flight.getString("departureTime"));
+                alertDate.setText(flight.getString("arrivalTime"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return flightView;
     }
 }

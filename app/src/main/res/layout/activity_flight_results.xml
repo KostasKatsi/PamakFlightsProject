@@ -10,11 +10,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.kostas.pamakflights.FlightResults">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/originDestination"
+        android:gravity="center">
+    </TextView>
     <ListView
         android:id="@+id/FlightsList"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:paddingTop="20dp" />
 </RelativeLayout>
