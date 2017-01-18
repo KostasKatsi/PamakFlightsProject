@@ -34,9 +34,9 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
         {
             flightView = new LinearLayout(getContext());
             String inflater = Context.LAYOUT_INFLATER_SERVICE;
-            LayoutInflater vi;
-            vi = (LayoutInflater)getContext().getSystemService(inflater);
-            vi.inflate(resource, flightView, true);
+            LayoutInflater vinf;
+            vinf = (LayoutInflater)getContext().getSystemService(inflater);
+            vinf.inflate(resource, flightView, true);
         }
         else flightView = (LinearLayout) convertView;
         //Get the text boxes from the list_item.xml file
