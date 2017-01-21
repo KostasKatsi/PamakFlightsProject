@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox nonstop = null;
     private ProgressDialog progress;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             JSONObject obj2 = new JSONObject(loadJSONFromAsset("Country Codes"));
             JSONArray country = obj2.getJSONArray("names");
+
 
             for (int i=0;i<country.length();i++)
             {
@@ -103,11 +105,11 @@ public class MainActivity extends AppCompatActivity {
                                 index = i;
 
                         }
-                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apiKey="+ apiKey +"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index));
                     }
                     adapter1 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete2.setAdapter(adapter1);
-                    autoComplete2.setThreshold(1);
+//                    autoComplete2.setThreshold(1);
                 }
             });
 
@@ -128,11 +130,11 @@ public class MainActivity extends AppCompatActivity {
                                 index = i;
                         }
 
-                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apiKey="+ apiKey +"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index));
                     }
                     adapter2 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
                     autoComplete4.setAdapter(adapter2);
-                    autoComplete4.setThreshold(1);
+//                    autoComplete4.setThreshold(1);
                 }
 
 
@@ -222,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                                 + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
                                 + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
                         if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
+                        String tester = "http://validate.jsontest.com/?json=" + jsonPath;
                         new jsonResults().execute(jsonPath);
                     }
                 }
@@ -296,6 +299,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class jsonTest extends AsyncTask<String,String,String>
+    {
+        protected String doInBackground(String... params)
+        {
+            String test = null;
+            try {
+                test = httpRequest(params[0]);
+
+                JSONObject result = new JSONObject(test);
+
+                if (result.getString("validate").equals("false"))
+                return test;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return test;
+        }
+    }
+
     public class jsonResults extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
@@ -305,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
                 String buffer = httpRequest(params[0]);
 
                 JSONArray results = new JSONObject(buffer).getJSONArray("results");
+
                 JSONObject flight;
                 JSONArray numOfFlights;
                 JSONObject flightDetails;
@@ -313,42 +336,51 @@ public class MainActivity extends AppCompatActivity {
                 String flightDuration = null;
                 String midDestination = null;
 
-                buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + origin);
-                String formattedOrigin = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
-                buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + destination);
-                String formattedDestination = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + origin);
+                String formattedOrigin = new JSONArray(buffer).getJSONObject(0).getString("name");
+                String[] temp = formattedOrigin.split(",");
+                formattedOrigin = temp[0];
+                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + destination);
+                String formattedDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
+                String[] temp2 = formattedDestination.split(",");
+                formattedDestination = temp2[0];
+                System.out.println(formattedOrigin+formattedDestination);
 
                 for (int i=0; i<results.length(); i++) {
                     flight = results.getJSONObject(i);
                     formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
                     numOfFlights = flight.getJSONArray("itineraries");
-                    for (int j=0; j<numOfFlights.length(); j++) {
+                    for (int j = 0; j < numOfFlights.length(); j++) {
                         outboundFlights = numOfFlights.getJSONObject(j).getJSONObject("outbound").getJSONArray("flights");
-                        flightDetails = outboundFlights.getJSONObject(0);
-                        if (outboundFlights.length() > 1) {
-                            buffer = httpRequest("https://iatacodes.org/api/v6/cities?api_key=" + IATA_API_KEY + "&code=" + outboundFlights.getJSONObject(0).getJSONObject("destination").getString("airport"));
-                            midDestination = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
-                        }
-                        buffer = httpRequest("https://iatacodes.org/api/v6/airlines?api_key=" + IATA_API_KEY + "&code=" + flightDetails.getString("operating_airline"));
-                        String company = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-                        try {
-                            Date dStart = format.parse(flightDetails.getString("departs_at"));
-                            Date dEnd = format.parse(flightDetails.getString("arrives_at"));
-                            long diffM = (dEnd.getTime() - dStart.getTime()) / 1000 / 60;
-                            long diffH = diffM / 60;
-                            if (diffH != 0) {
-                                diffM = diffM - diffH * 60;
-                                if (diffM != 0) flightDuration = diffH + "h" + diffM + "mins";
-                                else flightDuration = diffH + "h";
-                            } else {
-                                flightDuration = diffM + "mins";
+                        for (int k = 0; outboundFlights.length() > k; k++)
+                        {
+                            flightDetails = outboundFlights.getJSONObject(k);
+                            if (outboundFlights.length() > 1) {
+                                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + outboundFlights.getJSONObject(k).getJSONObject("destination").getString("airport"));
+                                midDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
+                                String[] temp3 = midDestination.split(",");
+                                midDestination = temp3[0];
                             }
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                            buffer = httpRequest("https://iatacodes.org/api/v6/airlines?api_key=" + IATA_API_KEY + "&code=" + flightDetails.getString("operating_airline"));
+                            String company = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                            try {
+                                Date dStart = format.parse(flightDetails.getString("departs_at"));
+                                Date dEnd = format.parse(flightDetails.getString("arrives_at"));
+                                long diffM = (dEnd.getTime() - dStart.getTime()) / 1000 / 60;
+                                long diffH = diffM / 60;
+                                if (diffH != 0) {
+                                    diffM = diffM - diffH * 60;
+                                    if (diffM != 0) flightDuration = diffH + "h" + diffM + "mins";
+                                    else flightDuration = diffH + "h";
+                                } else {
+                                    flightDuration = diffM + "mins";
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
 
-                        formattedFlights.getJSONObject(i).getJSONArray("flights").put(new JSONObject()
+                            formattedFlights.getJSONObject(i).getJSONArray("flights").put(new JSONObject()
                                 .put("origin", formattedOrigin)
                                 .put("destination", formattedDestination)
                                 .put("company", company)
@@ -357,7 +389,10 @@ public class MainActivity extends AppCompatActivity {
                                 .put("flightDuration", flightDuration)
                                 .put("seatsRemaining", flightDetails.getJSONObject("booking_info").getString("seats_remaining"))
                                 .put("intermediateStop", midDestination)
-                                .put("price", flight.getJSONObject("fare").getString("total_price") + " €"));
+                                .put("price", flight.getJSONObject("fare").getString("total_price") + " €")
+                                .put("index", Integer.toString(j)));
+                        }
+
                     }
                 }
                 progress.dismiss();

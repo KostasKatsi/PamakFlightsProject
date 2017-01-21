@@ -10,7 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import static android.R.attr.format;
 
 public class FlightResults extends AppCompatActivity {
 
@@ -38,8 +43,50 @@ public class FlightResults extends AppCompatActivity {
             try {
                 flightData = flightsJSON.getJSONObject(i);
                 priceCategoryArray = flightData.getJSONArray("flights");
-                for (int j = 0; j < priceCategoryArray.length(); j++) {
-                    flightsArray.add(priceCategoryArray.getJSONObject(j));
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                long tempArrDay=0;
+                long tempDepDay=0;
+                for (int j = 1; j <=priceCategoryArray.length(); j++) {
+                    if (priceCategoryArray.length()>1) {
+                        if (priceCategoryArray.getJSONObject(j-1).getString("index").equals(priceCategoryArray.getJSONObject(j).getString("index"))) {
+                            try {
+                                Date dStart = format.parse(priceCategoryArray.getJSONObject(j-1).getString("departureTime"));
+                                Date dEnd = format.parse(priceCategoryArray.getJSONObject(j).getString("arrivalTime"));
+                                tempDepDay = dStart.getDay();
+                                tempArrDay = dEnd.getDay();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            flightsArray.add(priceCategoryArray.getJSONObject(j - 1).put("arrivalTime", priceCategoryArray.getJSONObject(j).getString("arrivalTime"))
+                                    .put("flightDuration", priceCategoryArray.getJSONObject(j - 1).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j).getString("flightDuration")));
+                            if (tempDepDay!=tempArrDay)
+                            {
+                                flightsArray.add(priceCategoryArray.getJSONObject(j-1).put("diffDay", "true"));
+                            }
+                            j++;
+                        } else if (priceCategoryArray.getJSONObject(j - 1).getString("index").equals(priceCategoryArray.getJSONObject(j).getString("index")) &&
+                                priceCategoryArray.getJSONObject(j).getString("index").equals(priceCategoryArray.getJSONObject(j + 1).getString("index"))) {
+                            try {
+                                Date dStart = format.parse(priceCategoryArray.getJSONObject(j-1).getString("departureTime"));
+                                Date dEnd = format.parse(priceCategoryArray.getJSONObject(j+1).getString("arrivalTime"));
+                                tempDepDay = dStart.getDay();
+                                tempArrDay = dEnd.getDay();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            flightsArray.add(priceCategoryArray.getJSONObject(j - 1).put("arrivalTime", priceCategoryArray.getJSONObject(j + 1).getString("arrivalTime"))
+                                    .put("flightDuration", priceCategoryArray.getJSONObject(j - 1).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j + 1).getString("duration")));
+                            if (tempDepDay!=tempArrDay)
+                            {
+                                flightsArray.add(priceCategoryArray.getJSONObject(j-1).put("diffDay", "true"));
+                            }
+                            j = j + 2;
+                        }
+                    }
+                    else
+                    {
+                        flightsArray.add(priceCategoryArray.getJSONObject(j-1));
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

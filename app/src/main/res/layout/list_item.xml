@@ -1,17 +1,114 @@
 <!--?xml version="1.0" encoding="utf-8"?-->
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:layout_height="fill_parent">
+
     <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/departureDateText">
-    </TextView>
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
+        android:id="@+id/price"
+        android:textSize="30sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
     <TextView
-        android:layout_width="fill_parent"
+    android:text="TextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/depAiport"
+        android:layout_alignBaseline="@+id/directFlightorNot"
+        android:layout_alignBottom="@+id/directFlightorNot"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+    android:text="TextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/arrAirport"
+        android:layout_toEndOf="@+id/depAiport"
+        android:layout_toRightOf="@+id/depAiport"
+        android:layout_alignBaseline="@+id/depAiport"
+        android:layout_alignBottom="@+id/depAiport"
+        android:layout_alignLeft="@+id/arrTime"
+        android:layout_alignStart="@+id/arrTime" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/arrivalDateText">
-    </TextView>
-</LinearLayout>
+        android:id="@+id/duration"
+        android:textColor="#42A5F5"
+        android:layout_below="@+id/infosField"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/directFlightorNot"
+        android:layout_below="@+id/duration"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/arrTime"
+        android:textSize="20sp"
+        android:layout_alignBaseline="@+id/duration"
+        android:layout_alignBottom="@+id/duration"
+        android:layout_alignLeft="@+id/infosField"
+        android:layout_alignStart="@+id/infosField" />
+
+    <TextView
+    android:text="TextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/depTime"
+        android:textSize="20sp"
+        android:layout_alignBaseline="@+id/arrTime"
+        android:layout_alignBottom="@+id/arrTime"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="93dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/departureLabelText"
+        android:text="Αναχώρηση: "
+        android:layout_above="@+id/depTime"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+
+    <TextView
+    android:text="TextView"
+    android:layout_width="253dp"
+    android:layout_height="wrap_content"
+    android:id="@+id/infosField"
+
+        android:layout_below="@+id/price"
+
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="11dp"
+        android:layout_marginEnd="11dp"
+        android:layout_marginBottom="6dp"/>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/diffDay"
+        android:layout_alignTop="@+id/arrTime"
+        android:layout_toRightOf="@+id/arrTime"
+        android:layout_toEndOf="@+id/arrTime" />
+
+
+</RelativeLayout>
