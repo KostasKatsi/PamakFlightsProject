@@ -3,6 +3,7 @@ package com.example.kostas.pamakflights;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.preference.PreferenceActivity;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,11 +26,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.example.kostas.pamakflights.BuildConfig.FLIGHTS_API_KEY;
 import static com.example.kostas.pamakflights.BuildConfig.IATA_API_KEY;
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView numOfBabies = null;
     private CheckBox nonstop = null;
     private ProgressDialog progress;
+    private int checker;
 
 
     @Override
@@ -224,8 +231,17 @@ public class MainActivity extends AppCompatActivity {
                                 + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
                                 + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
                         if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
-                        String tester = "http://validate.jsontest.com/?json=" + jsonPath;
-                        new jsonResults().execute(jsonPath);
+                        new testResponse().execute(jsonPath);
+                        if (checker==1)
+                        {
+                            Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για τη συγκεκριμένη ημερομηνία", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                            new jsonResults().execute(jsonPath);
+
+
+
+
                     }
                 }
             });
@@ -233,6 +249,35 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
+    class testResponse extends AsyncTask<String,String,String> {
+
+        private Exception exception;
+
+        protected String doInBackground(String... urls) {
+            try {
+                URL obj = new URL(urls[0]);
+                URLConnection conn = obj.openConnection();
+                Map<String, List<String>> map = conn.getHeaderFields();
+
+                System.out.println("Printing Response Header...\n");
+
+                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                    if(entry.getValue().equals("HTTP/1.1 400 Bad Request")) checker = 1;
+                    else checker =0;
+                }
+
+            } catch (Exception e) {
+                this.exception = e;
+
+                return null;
+            }
+            return null;
+        }
+    }
+
+
     public String loadJSONFromAsset(String name) {
         String json;
         try {
