@@ -15,26 +15,63 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-    android:text="TextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/depAiport"
-        android:layout_alignBaseline="@+id/directFlightorNot"
-        android:layout_alignBottom="@+id/directFlightorNot"
+        android:layout_width="93dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/departureLabelText"
+        android:text="Αναχώρηση: "
+        android:layout_alignBaseline="@+id/infoField"
+        android:layout_alignBottom="@+id/infoField"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <TextView
-    android:text="TextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/arrAirport"
-        android:layout_toEndOf="@+id/depAiport"
-        android:layout_toRightOf="@+id/depAiport"
-        android:layout_alignBaseline="@+id/depAiport"
-        android:layout_alignBottom="@+id/depAiport"
-        android:layout_alignLeft="@+id/arrTime"
-        android:layout_alignStart="@+id/arrTime" />
+        android:text="Aegean Airlines sdas dasdas dasd adas das"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/infoField"
+        android:layout_below="@+id/price"
+        android:layout_toRightOf="@+id/departureLabelText"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cities"
+        android:layout_below="@+id/price"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/depTime"
+        android:textSize="20sp"
+        android:layout_alignBaseline="@+id/arrTime"
+        android:layout_alignBottom="@+id/arrTime"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/arrTime"
+        android:textSize="20sp"
+        android:layout_alignBaseline="@+id/duration"
+        android:layout_alignBottom="@+id/duration"
+        android:layout_alignLeft="@+id/infoField"
+        android:layout_alignStart="@+id/infoField" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/diffDay"
+        android:layout_alignTop="@+id/arrTime"
+        android:layout_toRightOf="@+id/arrTime"
+        android:layout_toEndOf="@+id/arrTime" />
 
     <TextView
         android:text="TextView"
@@ -50,69 +87,31 @@
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/depAiport"
+        android:layout_alignBaseline="@+id/directFlightorNot"
+        android:layout_alignBottom="@+id/directFlightorNot"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/arrAirport"
+        android:layout_toEndOf="@+id/depAiport"
+        android:layout_toRightOf="@+id/depAiport"
+        android:layout_alignBaseline="@+id/depAiport"
+        android:layout_alignBottom="@+id/depAiport"
+        android:layout_alignLeft="@+id/arrTime"
+        android:layout_alignStart="@+id/arrTime" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/directFlightorNot"
         android:layout_below="@+id/duration"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/arrTime"
-        android:textSize="20sp"
-        android:layout_alignBaseline="@+id/duration"
-        android:layout_alignBottom="@+id/duration"
-        android:layout_alignLeft="@+id/infoField"
-        android:layout_alignStart="@+id/infoField" />
-
-    <TextView
-    android:text="TextView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/depTime"
-        android:textSize="20sp"
-        android:layout_alignBaseline="@+id/arrTime"
-        android:layout_alignBottom="@+id/arrTime"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/diffDay"
-        android:layout_alignTop="@+id/arrTime"
-        android:layout_toRightOf="@+id/arrTime"
-        android:layout_toEndOf="@+id/arrTime" />
-
-    <TextView
-        android:layout_width="93dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/departureLabelText"
-        android:text="Αναχώρηση: "
-        android:layout_alignBaseline="@+id/infoField"
-        android:layout_alignBottom="@+id/infoField"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/cities"
-        android:layout_below="@+id/price"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-    android:text="Aegean Airlines sdas dasdas dasd adas das"
-    android:layout_width="200dp"
-    android:layout_height="wrap_content"
-    android:id="@+id/infoField"
-    android:layout_below="@+id/price"
-    android:layout_centerHorizontal="true" />
-
 
 </RelativeLayout>

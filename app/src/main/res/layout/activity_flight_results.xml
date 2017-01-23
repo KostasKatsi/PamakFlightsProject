@@ -11,17 +11,27 @@
     tools:context="com.example.kostas.pamakflights.FlightResults">
 
     <TextView
+        android:text="Thessaloniki-Athens"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/originDestination"
         android:gravity="center"
         android:textSize="35dp">
     </TextView>
+    <TextView
+        android:text="2017-01-23"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/originDestination"
+        android:id="@+id/flightDate"
+        android:gravity="center"
+        android:textSize="30dp">
+    </TextView>
     <ListView
         android:id="@+id/FlightsList"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/originDestination"
+        android:layout_below="@+id/flightDate"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:paddingTop="20dp" />

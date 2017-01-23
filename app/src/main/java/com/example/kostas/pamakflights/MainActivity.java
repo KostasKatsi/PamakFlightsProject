@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             findButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    progress.show();
                     String[] temp;
                     if (!originAirport.getText().toString().equals("")) {
                         temp = originAirport.getText().toString().split("\\[");
@@ -211,10 +211,13 @@ public class MainActivity extends AppCompatActivity {
                     }*/
                     if (origin == null) {
                         Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει αφετηρία", Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
                     } else if (destination == null) {
                         Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει προορισμό", Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
                     } else if (origin.equals(destination)) {
                         Toast.makeText(MainActivity.this, "Η αφετηρία δεν μπορεί να είναι ίδια με τον προορισμό", Toast.LENGTH_SHORT).show();
+                        progress.dismiss();
                     }
 //                    else if (d1!=null && d2!=null && d2.before(d1)) {
 //                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
@@ -223,17 +226,8 @@ public class MainActivity extends AppCompatActivity {
                         jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
                         + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
                         + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
-//                      if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
-                        try {
-                            if (new isResponseValid().execute(jsonPath).get()) Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
-                            else
-                            {
-                                progress.show();
-                                new jsonResults().execute(jsonPath);
-                            }
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
+//                      if (formattedArrivalDate != null) jsonPath += "&return_date=" + formattedArrivalDate;
+                        new isResponseValid().execute(jsonPath);
                     }
                 }
             });
@@ -294,12 +288,20 @@ public class MainActivity extends AppCompatActivity {
                 Map<String, List<String>> map = conn.getHeaderFields();
                 for (Map.Entry<String, List<String>> entry : map.entrySet())
                     if (entry.getValue().get(0).equals("HTTP/1.1 400 Bad Request")) {
-                        return true;
+                        return false;
                     }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return false;
+            return true;
+        }
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
+                progress.dismiss();
+            } else {
+                new jsonResults().execute(jsonPath);
+            }
         }
     }
 
@@ -307,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
     {
         protected String doInBackground(String... params)
         {
-            String countryJsonStr = null;
+            String countryJsonStr;
             try {
                 countryJsonStr = httpRequest(params[0]);
 
@@ -359,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
                 String formattedDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
                 String[] temp2 = formattedDestination.split(",");
                 formattedDestination = temp2[0];
-                System.out.println(formattedOrigin+formattedDestination);
+                a = 0;
 
                 for (int i=0; i<results.length(); i++) {
                     flight = results.getJSONObject(i);

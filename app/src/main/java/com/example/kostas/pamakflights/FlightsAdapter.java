@@ -62,7 +62,8 @@ class FlightsAdapter extends ArrayAdapter<JSONObject> {
                 String tempArr = flight.getString("arrivalTime");
                 price.setText(flight.getString("price"));
                 price.setTextColor(Color.RED);
-                info.setText(flight.getString("company") + " - " + tempDep.substring(0, tempDep.length() - 6));
+                /*info.setText(flight.getString("company") + " - " + tempDep.substring(0, tempDep.length() - 6));*/
+                info.setText(flight.getString("company"));
                 depTime.setText(tempDep.substring((tempDep.length() - 5)));
                 depTime.setTextColor(Color.BLUE);
                 arrTime.setText(tempArr.substring((tempArr.length() - 5)));

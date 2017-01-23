@@ -126,9 +126,16 @@ public class FlightResults extends AppCompatActivity {
         }
 
         TextView flightOriginDestination = (TextView) findViewById(R.id.originDestination);
+        TextView flightDate = (TextView) findViewById(R.id.flightDate);
         try {
             flightOriginDestination.setText(flightsArray.get(0).getString("origin") + "-" + flightsArray.get(0).getString("destination"));
-        } catch (JSONException e) {
+            String tempDep = flightsArray.get(0).getString("departureTime");
+            SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat targetFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date date = originalFormat.parse(tempDep.substring(0, tempDep.length() - 6));
+            String formattedDate = targetFormat.format(date);
+            flightDate.setText(formattedDate);
+        } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
 
