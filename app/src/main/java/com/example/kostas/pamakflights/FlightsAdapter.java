@@ -1,33 +1,32 @@
 package com.example.kostas.pamakflights;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class FlightsAdapter extends ArrayAdapter<JSONObject> {
+class FlightsAdapter extends ArrayAdapter<JSONObject> {
 
     private int resource;
     //Initialize adapter
-    public FlightsAdapter(Context context, int resource, ArrayList<JSONObject> items) {
+    FlightsAdapter(Context context, int resource, ArrayList<JSONObject> items) {
         super(context, resource, items);
         this.resource = resource;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent)
+    public View getView(int position, View convertView, @NonNull ViewGroup parent)
     {
         RelativeLayout flightView;
         JSONObject flight = getItem(position);
@@ -44,7 +43,7 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
         else flightView = (RelativeLayout) convertView;
         //Get the text boxes from the list_item.xml file
         TextView price =(TextView)flightView.findViewById(R.id.price);
-        TextView infos =(TextView)flightView.findViewById(R.id.infosField);
+        TextView info =(TextView)flightView.findViewById(R.id.infoField);
         TextView depTime =(TextView)flightView.findViewById(R.id.depTime);
         TextView arrTime =(TextView)flightView.findViewById(R.id.arrTime);
         TextView flightDuration =(TextView)flightView.findViewById(R.id.duration);
@@ -63,7 +62,7 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
                 String tempArr = flight.getString("arrivalTime");
                 price.setText(flight.getString("price"));
                 price.setTextColor(Color.RED);
-                infos.setText(flight.getString("company") + " - " + tempDep.substring(0, tempDep.length() - 6));
+                info.setText(flight.getString("company") + " - " + tempDep.substring(0, tempDep.length() - 6));
                 depTime.setText(tempDep.substring((tempDep.length() - 5)));
                 depTime.setTextColor(Color.BLUE);
                 arrTime.setText(tempArr.substring((tempArr.length() - 5)));
@@ -77,7 +76,6 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
                 else diffDay.setText("");
                 if (flight.has("intermediateStop")) cities.setText("Μέσω: " + flight.getString("intermediateStop"));
                 else cities.setText("");
-
             }
         } catch (JSONException e) {
             e.printStackTrace();

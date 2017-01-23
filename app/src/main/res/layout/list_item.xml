@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/duration"
         android:textColor="#42A5F5"
-        android:layout_below="@+id/infosField"
+        android:layout_below="@+id/infoField"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -63,8 +63,8 @@
         android:textSize="20sp"
         android:layout_alignBaseline="@+id/duration"
         android:layout_alignBottom="@+id/duration"
-        android:layout_alignLeft="@+id/infosField"
-        android:layout_alignStart="@+id/infosField" />
+        android:layout_alignLeft="@+id/infoField"
+        android:layout_alignStart="@+id/infoField" />
 
     <TextView
     android:text="TextView"
@@ -92,8 +92,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/departureLabelText"
         android:text="Αναχώρηση: "
-        android:layout_alignBaseline="@+id/infosField"
-        android:layout_alignBottom="@+id/infosField"
+        android:layout_alignBaseline="@+id/infoField"
+        android:layout_alignBottom="@+id/infoField"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -107,13 +107,12 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-    android:text="TextView"
+    android:text="Aegean Airlines sdas dasdas dasd adas das"
     android:layout_width="200dp"
     android:layout_height="wrap_content"
-    android:id="@+id/infosField"
-
-        android:layout_below="@+id/price"
-        android:layout_centerHorizontal="true" />
+    android:id="@+id/infoField"
+    android:layout_below="@+id/price"
+    android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

@@ -40,15 +40,13 @@ import static com.example.kostas.pamakflights.BuildConfig.IATA_API_KEY;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AutoCompleteTextView autoComplete;
-    private AutoCompleteTextView autoComplete2;
-    private AutoCompleteTextView autoComplete3;
-    private AutoCompleteTextView autoComplete4;
-    private ArrayAdapter<String> adapter1;
-    private ArrayAdapter<String> adapter2;
+    private AutoCompleteTextView originCountry;
+    private AutoCompleteTextView originAirport;
+    private AutoCompleteTextView destinationCountry;
+    private AutoCompleteTextView destinationAirport;
     private String input = null;
     private String apiKey = null;
-    private int index = 0;
+    private int index = 0, a = 0;
     private ArrayList<String> countryNames = new ArrayList<>();
     private ArrayList<String> countryCodes = new ArrayList<>();
     private String origin = null;
@@ -57,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private Button moreButton = null;
     private RelativeLayout layout = null;
     private String formattedDepartureDate = null;
-    private String formattedArrivalDate = null;
+    /*private String formattedArrivalDate = null;*/
     private SimpleDateFormat sdf = null;
     private TextView numOfAdults = null;
     private TextView numOfKids = null;
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private CheckBox nonstop = null;
     private ProgressDialog progress;
     private String jsonPath=null;
-    private int a = 0, b=0;
 
 
 
@@ -87,61 +84,56 @@ public class MainActivity extends AppCompatActivity {
             }
 
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, countryNames);
-            autoComplete = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
-            autoComplete.setAdapter(adapter);
-            autoComplete.setThreshold(1);
-            autoComplete3 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView3);
-            autoComplete3.setAdapter(adapter);
-            autoComplete3.setThreshold(1);
+            originCountry = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
+            originCountry.setThreshold(1);
+            originCountry.setAdapter(adapter);
+            originAirport = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
+            originAirport.setThreshold(1);
+            destinationCountry = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView3);
+            destinationCountry.setThreshold(1);
+            destinationCountry.setAdapter(adapter);
+            destinationAirport = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView4);
+            destinationAirport.setThreshold(1);
 
             apiKey = FLIGHTS_API_KEY;
 
-            autoComplete2 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView2);
-            autoComplete2.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            originAirport.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 
                 @Override
                 public void onFocusChange(View v, boolean hasFocus){
-                    if(hasFocus && !autoComplete.getText().toString().equals(""))
+                    if(hasFocus && !originCountry.getText().toString().equals(""))
                     {
                         label.clear();
                         input = null;
-                        input = autoComplete.getText().toString();
+                        input = originCountry.getText().toString();
                         for (int i=0;i<countryNames.size();i++)
                         {
                             if (input.equals(countryNames.get(i)))
                                 index = i;
-
                         }
-                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index),
+                                "origin");
                     }
-                    adapter1 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
-                    autoComplete2.setAdapter(adapter1);
-//                    autoComplete2.setThreshold(1);
                 }
             });
-
-            autoComplete4 = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView4);
-            autoComplete4.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            destinationAirport.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 
                 @Override
                 public void onFocusChange(View v, boolean hasFocus){
-
-                    if(hasFocus && !autoComplete3.getText().toString().equals(""))
+                    if(hasFocus && !destinationCountry.getText().toString().equals(""))
                     {
                         label.clear();
                         input = null;
-                        input = autoComplete3.getText().toString();
+                        input = destinationCountry.getText().toString();
                         for (int i=0;i<countryNames.size();i++)
                         {
                             if (input.equals(countryNames.get(i)))
                                 index = i;
                         }
 
-                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index));
+                        new jsonAirports().execute("https://api.sandbox.amadeus.com/v1.2/airports/autocomplete?apikey="+ apiKey +"&country="+countryCodes.get(index),
+                                "destination");
                     }
-                    adapter2 = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label);
-                    autoComplete4.setAdapter(adapter2);
-//                    autoComplete4.setThreshold(1);
                 }
 
 
@@ -200,24 +192,23 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-
                     String[] temp;
-                    if (!autoComplete2.getText().toString().equals("")) {
-                        temp = autoComplete2.getText().toString().split("\\[");
+                    if (!originAirport.getText().toString().equals("")) {
+                        temp = originAirport.getText().toString().split("\\[");
                         origin = temp[1].replace("]", "");
                     } else origin = null;
-                    if (!autoComplete4.getText().toString().equals("")) {
-                        temp = autoComplete4.getText().toString().split("\\[");
+                    if (!destinationAirport.getText().toString().equals("")) {
+                        temp = destinationAirport.getText().toString().split("\\[");
                         destination = temp[1].replace("]", "");
                     } else destination = null;
-                    Date d1 = null;
+                    /*Date d1 = null;
                     Date d2 = null;
                     try {
                         d1 = sdf.parse(formattedDepartureDate);
-//                        d2 = sdf.parse(formattedArrivalDate);
+                        d2 = sdf.parse(formattedArrivalDate);
                     } catch (ParseException e) {
                         e.printStackTrace();
-                    }
+                    }*/
                     if (origin == null) {
                         Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει αφετηρία", Toast.LENGTH_SHORT).show();
                     } else if (destination == null) {
@@ -229,22 +220,20 @@ public class MainActivity extends AppCompatActivity {
 //                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
 //                    }
                     else {
-                                jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
-                                + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
-                                + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
-//                        if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
-                    }
-                    try {
-                        if (new testResponse().execute(jsonPath).get()) Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
-                        else
-                        {
-                            progress.show();
-                            new jsonResults().execute(jsonPath);
+                        jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
+                        + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
+                        + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
+//                      if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
+                        try {
+                            if (new isResponseValid().execute(jsonPath).get()) Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
+                            else
+                            {
+                                progress.show();
+                                new jsonResults().execute(jsonPath);
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
                         }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
                     }
                 }
             });
@@ -252,25 +241,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
-    public class testResponse extends AsyncTask<String,String,Boolean> {
-
-        protected Boolean doInBackground(String... params) {
-            try {
-                URL obj = new URL(params[0]);
-                URLConnection conn = obj.openConnection();
-                Map<String, List<String>> map = conn.getHeaderFields();
-                for (Map.Entry<String, List<String>> entry : map.entrySet())
-                    if (entry.getValue().get(0).equals("HTTP/1.1 400 Bad Request")) {
-                        return true;
-                    }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
-    }
-
 
     public String loadJSONFromAsset(String name) {
         String json;
@@ -315,6 +285,24 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    public class isResponseValid extends AsyncTask<String,String,Boolean> {
+
+        protected Boolean doInBackground(String... params) {
+            try {
+                URL obj = new URL(params[0]);
+                URLConnection conn = obj.openConnection();
+                Map<String, List<String>> map = conn.getHeaderFields();
+                for (Map.Entry<String, List<String>> entry : map.entrySet())
+                    if (entry.getValue().get(0).equals("HTTP/1.1 400 Bad Request")) {
+                        return true;
+                    }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+    }
+
     public class jsonAirports extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
@@ -330,11 +318,18 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject results = result.getJSONObject(i);
                     label.add(results.getString("label"));
                 }
-                return countryJsonStr;
+                return params[1];
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return countryJsonStr;
+            return params[1];
+        }
+        protected void onPostExecute(String result) {
+            if (result.equals("origin")) {
+                originAirport.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label));
+            } else {
+                destinationAirport.setAdapter(new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, label));
+            }
         }
     }
 
