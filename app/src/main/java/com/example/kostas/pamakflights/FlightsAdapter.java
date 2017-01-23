@@ -52,6 +52,7 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
         TextView arrAirport =(TextView)flightView.findViewById(R.id.arrAirport);
         TextView directOrNot =(TextView)flightView.findViewById(R.id.directFlightorNot);
         TextView diffDay =(TextView)flightView.findViewById(R.id.diffDay);
+        TextView cities = (TextView)flightView.findViewById(R.id.cities);
 
 
 
@@ -74,6 +75,8 @@ public class FlightsAdapter extends ArrayAdapter<JSONObject> {
                 else directOrNot.setText("Πτήση με ανταπόκριση");
                 if (flight.has("diffDay")) diffDay.setText("+1 ημέρα");
                 else diffDay.setText("");
+                if (flight.has("intermediateStop")) cities.setText("Μέσω: " + flight.getString("intermediateStop"));
+                else cities.setText("");
 
             }
         } catch (JSONException e) {

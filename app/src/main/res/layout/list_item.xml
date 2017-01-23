@@ -77,29 +77,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <TextView
-        android:layout_width="93dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/departureLabelText"
-        android:text="Αναχώρηση: "
-        android:layout_above="@+id/depTime"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
-
-
-    <TextView
-    android:text="TextView"
-    android:layout_width="253dp"
-    android:layout_height="wrap_content"
-    android:id="@+id/infosField"
-
-        android:layout_below="@+id/price"
-
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="11dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="6dp"/>
 
     <TextView
         android:text="TextView"
@@ -109,6 +86,34 @@
         android:layout_alignTop="@+id/arrTime"
         android:layout_toRightOf="@+id/arrTime"
         android:layout_toEndOf="@+id/arrTime" />
+
+    <TextView
+        android:layout_width="93dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/departureLabelText"
+        android:text="Αναχώρηση: "
+        android:layout_alignBaseline="@+id/infosField"
+        android:layout_alignBottom="@+id/infosField"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cities"
+        android:layout_below="@+id/price"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+    android:text="TextView"
+    android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:id="@+id/infosField"
+
+        android:layout_below="@+id/price"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

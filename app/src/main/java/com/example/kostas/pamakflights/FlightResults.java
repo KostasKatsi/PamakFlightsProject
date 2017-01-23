@@ -28,7 +28,7 @@ public class FlightResults extends AppCompatActivity {
         setContentView(R.layout.activity_flight_results);
 
         Bundle extras = getIntent().getExtras();
-        JSONObject flightData;
+        JSONObject allItineraries;
         if (extras != null) {
             try {
                 flightsJSON = new JSONArray(extras.getString("flights"));
@@ -38,56 +38,88 @@ public class FlightResults extends AppCompatActivity {
             }
         }
 
-        JSONArray priceCategoryArray;
+        JSONArray flights;
         for(int i=0; i < flightsJSON.length() ; i++) {
             try {
-                flightData = flightsJSON.getJSONObject(i);
-                priceCategoryArray = flightData.getJSONArray("flights");
+                allItineraries = flightsJSON.getJSONObject(i);
+                flights = allItineraries.getJSONArray("flights");
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
                 long tempArrDay=0;
                 long tempDepDay=0;
-                for (int j = 1; j <=priceCategoryArray.length(); j++) {
-                    if (priceCategoryArray.length()>1) {
-                        if (priceCategoryArray.getJSONObject(j-1).getString("index").equals(priceCategoryArray.getJSONObject(j).getString("index"))) {
+                int j = 1;
+                    if (flights.length()==2) {
                             try {
-                                Date dStart = format.parse(priceCategoryArray.getJSONObject(j-1).getString("departureTime"));
-                                Date dEnd = format.parse(priceCategoryArray.getJSONObject(j).getString("arrivalTime"));
+                                Date dStart = format.parse(flights.getJSONObject(j - 1).getString("departureTime"));
+                                Date dEnd = format.parse(flights.getJSONObject(j).getString("arrivalTime"));
                                 tempDepDay = dStart.getDay();
                                 tempArrDay = dEnd.getDay();
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-                            flightsArray.add(priceCategoryArray.getJSONObject(j - 1).put("arrivalTime", priceCategoryArray.getJSONObject(j).getString("arrivalTime"))
-                                    .put("flightDuration", priceCategoryArray.getJSONObject(j - 1).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j).getString("flightDuration")));
-                            if (tempDepDay!=tempArrDay)
-                            {
-                                flightsArray.add(priceCategoryArray.getJSONObject(j-1).put("diffDay", "true"));
-                            }
+                            if (tempDepDay != tempArrDay)
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j).getString("arrivalTime"))
+                                        .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration"))
+                                        .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop"))
+                                        .put("diffDay", "true"));
+                            else
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j).getString("arrivalTime"))
+                                        .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration"))
+                                        .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop")));
                             j++;
-                        } else if (priceCategoryArray.getJSONObject(j - 1).getString("index").equals(priceCategoryArray.getJSONObject(j).getString("index")) &&
-                                priceCategoryArray.getJSONObject(j).getString("index").equals(priceCategoryArray.getJSONObject(j + 1).getString("index"))) {
+                    }
+                    else if (flights.length()==3)
+                    {
                             try {
-                                Date dStart = format.parse(priceCategoryArray.getJSONObject(j-1).getString("departureTime"));
-                                Date dEnd = format.parse(priceCategoryArray.getJSONObject(j+1).getString("arrivalTime"));
+                                Date dStart = format.parse(flights.getJSONObject(j-1).getString("departureTime"));
+                                Date dEnd = format.parse(flights.getJSONObject(j+1).getString("arrivalTime"));
                                 tempDepDay = dStart.getDay();
                                 tempArrDay = dEnd.getDay();
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-                            flightsArray.add(priceCategoryArray.getJSONObject(j - 1).put("arrivalTime", priceCategoryArray.getJSONObject(j + 1).getString("arrivalTime"))
-                                    .put("flightDuration", priceCategoryArray.getJSONObject(j - 1).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j).getString("flightDuration") + " + " + priceCategoryArray.getJSONObject(j + 1).getString("duration")));
                             if (tempDepDay!=tempArrDay)
-                            {
-                                flightsArray.add(priceCategoryArray.getJSONObject(j-1).put("diffDay", "true"));
-                            }
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j + 1).getString("arrivalTime"))
+                                        .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration") + " + "
+                                                + flights.getJSONObject(j + 1).getString("flightDuration"))
+                                        .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop") + " , " + flights.getJSONObject(j).getString("intermediateStop"))
+                                        .put("diffDay", "true"));
+                            else
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j + 1).getString("arrivalTime"))
+                                                .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration") + " + "
+                                                        + flights.getJSONObject(j + 1).getString("duration"))
+                                                .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop") + " , " + flights.getJSONObject(j).getString("intermediateStop")));
                             j = j + 2;
-                        }
+                    }
+                    else if (flights.length()==4)
+                    {
+                            try {
+                                Date dStart = format.parse(flights.getJSONObject(j-1).getString("departureTime"));
+                                Date dEnd = format.parse(flights.getJSONObject(j+2).getString("arrivalTime"));
+                                tempDepDay = dStart.getDay();
+                                tempArrDay = dEnd.getDay();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            if (tempDepDay!=tempArrDay)
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j + 2).getString("arrivalTime"))
+                                        .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration") + " + "
+                                                + flights.getJSONObject(j + 1).getString("flightDuration") + " + " + flights.getJSONObject(j + 2).getString("flightDuration"))
+                                        .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop") + " , " + flights.getJSONObject(j).getString("intermediateStop") +
+                                         " , " + flights.getJSONObject(j+1).getString("intermediateStop"))
+                                        .put("diffDay", "true"));
+                            else
+                                flightsArray.add(flights.getJSONObject(j - 1).put("arrivalTime", flights.getJSONObject(j + 2).getString("arrivalTime"))
+                                        .put("flightDuration", flights.getJSONObject(j - 1).getString("flightDuration") + " + " + flights.getJSONObject(j).getString("flightDuration") + " + "
+                                                + flights.getJSONObject(j + 1).getString("duration") + " + " + flights.getJSONObject(j + 2).getString("duration"))
+                                        .put("intermediateStop", flights.getJSONObject(j - 1).getString("intermediateStop") + " , " + flights.getJSONObject(j).getString("intermediateStop") +
+                                                " , " + flights.getJSONObject(j+1).getString("intermediateStop")));
+                            j = j + 3;
                     }
                     else
                     {
-                        flightsArray.add(priceCategoryArray.getJSONObject(j-1));
+                        flightsArray.add(flights.getJSONObject(j-1));
                     }
-                }
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

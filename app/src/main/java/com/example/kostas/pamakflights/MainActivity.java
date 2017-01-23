@@ -3,7 +3,6 @@ package com.example.kostas.pamakflights;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.preference.PreferenceActivity;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,16 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static com.example.kostas.pamakflights.BuildConfig.FLIGHTS_API_KEY;
 import static com.example.kostas.pamakflights.BuildConfig.IATA_API_KEY;
@@ -66,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView numOfBabies = null;
     private CheckBox nonstop = null;
     private ProgressDialog progress;
-    private int checker;
+    private String jsonPath=null;
+    private int a = 0, b=0;
+
 
 
     @Override
@@ -175,14 +175,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            CalendarView arrivalDate = (CalendarView) findViewById(R.id.arrivalDate);
-            arrivalDate.setMinDate(arrivalDate.getDate());
-            formattedArrivalDate = "20" + sdf.format(arrivalDate.getDate());
-            arrivalDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
-                public void onSelectedDayChange(@NonNull CalendarView arrivalDate, int year, int month, int day) {
-                    formattedArrivalDate = "20" + sdf.format(new Date(year, month, day));
-                }
-            });
+//            CalendarView arrivalDate = (CalendarView) findViewById(R.id.arrivalDate);
+//            arrivalDate.setMinDate(arrivalDate.getDate());
+//            formattedArrivalDate = "20" + sdf.format(arrivalDate.getDate());
+//            arrivalDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
+//                public void onSelectedDayChange(@NonNull CalendarView arrivalDate, int year, int month, int day) {
+//                    formattedArrivalDate = "20" + sdf.format(new Date(year, month, day));
+//                }
+//            });
 
             numOfAdults = (TextView)findViewById(R.id.numOfAdults);
             numOfKids = (TextView)findViewById(R.id.numOfKids);
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
             findButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    progress.show();
+
 
                     String[] temp;
                     if (!autoComplete2.getText().toString().equals("")) {
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     Date d2 = null;
                     try {
                         d1 = sdf.parse(formattedDepartureDate);
-                        d2 = sdf.parse(formattedArrivalDate);
+//                        d2 = sdf.parse(formattedArrivalDate);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -224,24 +224,27 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει προορισμό", Toast.LENGTH_SHORT).show();
                     } else if (origin.equals(destination)) {
                         Toast.makeText(MainActivity.this, "Η αφετηρία δεν μπορεί να είναι ίδια με τον προορισμό", Toast.LENGTH_SHORT).show();
-                    } else if (d1!=null && d2!=null && d2.before(d1)) {
-                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
-                    } else {
-                        String jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
+                    }
+//                    else if (d1!=null && d2!=null && d2.before(d1)) {
+//                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
+//                    }
+                    else {
+                                jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
                                 + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
                                 + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
-                        if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
-                        new testResponse().execute(jsonPath);
-                        if (checker==1)
-                        {
-                            Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για τη συγκεκριμένη ημερομηνία", Toast.LENGTH_SHORT).show();
-                        }
+//                        if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
+                    }
+                    try {
+                        if (new testResponse().execute(jsonPath).get()) Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
                         else
+                        {
+                            progress.show();
                             new jsonResults().execute(jsonPath);
-
-
-
-
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
                 }
             });
@@ -250,30 +253,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public class testResponse extends AsyncTask<String,String,Boolean> {
 
-    class testResponse extends AsyncTask<String,String,String> {
-
-        private Exception exception;
-
-        protected String doInBackground(String... urls) {
+        protected Boolean doInBackground(String... params) {
             try {
-                URL obj = new URL(urls[0]);
+                URL obj = new URL(params[0]);
                 URLConnection conn = obj.openConnection();
                 Map<String, List<String>> map = conn.getHeaderFields();
-
-                System.out.println("Printing Response Header...\n");
-
-                for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-                    if(entry.getValue().equals("HTTP/1.1 400 Bad Request")) checker = 1;
-                    else checker =0;
-                }
-
-            } catch (Exception e) {
-                this.exception = e;
-
-                return null;
+                for (Map.Entry<String, List<String>> entry : map.entrySet())
+                    if (entry.getValue().get(0).equals("HTTP/1.1 400 Bad Request")) {
+                        return true;
+                    }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            return null;
+            return false;
         }
     }
 
@@ -344,25 +338,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class jsonTest extends AsyncTask<String,String,String>
-    {
-        protected String doInBackground(String... params)
-        {
-            String test = null;
-            try {
-                test = httpRequest(params[0]);
-
-                JSONObject result = new JSONObject(test);
-
-                if (result.getString("validate").equals("false"))
-                return test;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return test;
-        }
-    }
-
     public class jsonResults extends AsyncTask<String,String,String>
     {
         protected String doInBackground(String... params)
@@ -393,9 +368,9 @@ public class MainActivity extends AppCompatActivity {
 
                 for (int i=0; i<results.length(); i++) {
                     flight = results.getJSONObject(i);
-                    formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
                     numOfFlights = flight.getJSONArray("itineraries");
                     for (int j = 0; j < numOfFlights.length(); j++) {
+                        formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
                         outboundFlights = numOfFlights.getJSONObject(j).getJSONObject("outbound").getJSONArray("flights");
                         for (int k = 0; outboundFlights.length() > k; k++)
                         {
@@ -424,8 +399,8 @@ public class MainActivity extends AppCompatActivity {
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-
-                            formattedFlights.getJSONObject(i).getJSONArray("flights").put(new JSONObject()
+                            formattedFlights.getJSONObject(a).getJSONArray("flights").put(new JSONObject());
+                            formattedFlights.getJSONObject(a).getJSONArray("flights").getJSONObject(k)
                                 .put("origin", formattedOrigin)
                                 .put("destination", formattedDestination)
                                 .put("company", company)
@@ -435,9 +410,9 @@ public class MainActivity extends AppCompatActivity {
                                 .put("seatsRemaining", flightDetails.getJSONObject("booking_info").getString("seats_remaining"))
                                 .put("intermediateStop", midDestination)
                                 .put("price", flight.getJSONObject("fare").getString("total_price") + " €")
-                                .put("index", Integer.toString(j)));
+                                .put("index", Integer.toString(a));
                         }
-
+                    a++;
                     }
                 }
                 progress.dismiss();
