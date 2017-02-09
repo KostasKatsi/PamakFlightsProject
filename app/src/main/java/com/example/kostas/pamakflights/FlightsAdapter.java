@@ -2,8 +2,13 @@ package com.example.kostas.pamakflights;
 
 import java.util.ArrayList;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,9 +29,8 @@ class FlightsAdapter extends ArrayAdapter<JSONObject> {
         this.resource = resource;
     }
 
-    @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup parent)
+    public View getView(int position, View convertView, ViewGroup parent)
     {
         RelativeLayout flightView;
         JSONObject flight = getItem(position);
@@ -40,8 +44,9 @@ class FlightsAdapter extends ArrayAdapter<JSONObject> {
             vinf = (LayoutInflater)getContext().getSystemService(inflater);
             vinf.inflate(resource, flightView, true);
         }
-        else flightView = (RelativeLayout) convertView;
-        //Get the text boxes from the list_item.xml file
+        else {
+            flightView = (RelativeLayout) convertView;
+        }
         TextView price =(TextView)flightView.findViewById(R.id.price);
         TextView info =(TextView)flightView.findViewById(R.id.infoField);
         TextView depTime =(TextView)flightView.findViewById(R.id.depTime);
@@ -53,16 +58,13 @@ class FlightsAdapter extends ArrayAdapter<JSONObject> {
         TextView diffDay =(TextView)flightView.findViewById(R.id.diffDay);
         TextView cities = (TextView)flightView.findViewById(R.id.cities);
 
-
-
-        //Assign the appropriate data from our alert object above
         try {
             if (flight != null) {
                 String tempDep = flight.getString("departureTime");
                 String tempArr = flight.getString("arrivalTime");
                 price.setText(flight.getString("price"));
                 price.setTextColor(Color.RED);
-                info.setText(flight.getString("company") + " - " + tempDep.substring(0, tempDep.length() - 6));
+                info.setText(flight.getString("company"));
                 depTime.setText(tempDep.substring((tempDep.length() - 5)));
                 depTime.setTextColor(Color.BLUE);
                 arrTime.setText(tempArr.substring((tempArr.length() - 5)));

@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -33,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.Calendar;
 
 import static com.example.kostas.pamakflights.BuildConfig.FLIGHTS_API_KEY;
 import static com.example.kostas.pamakflights.BuildConfig.IATA_API_KEY;
@@ -46,25 +48,25 @@ public class MainActivity extends AppCompatActivity {
     private AutoCompleteTextView destinationAirport;
     private String input = null;
     private String apiKey = null;
-    private int index = 0, a = 0;
+    private int index = 0;
     private ArrayList<String> countryNames = new ArrayList<>();
     private ArrayList<String> countryCodes = new ArrayList<>();
     private String origin = null;
     private String destination = null;
     private ArrayList<String> label = new ArrayList<>();
-    private Button moreButton = null;
     private RelativeLayout layout = null;
     private String formattedDepartureDate = null;
-    /*private String formattedArrivalDate = null;*/
+    private String formattedArrivalDate = null;
     private SimpleDateFormat sdf = null;
     private TextView numOfAdults = null;
     private TextView numOfKids = null;
     private TextView numOfBabies = null;
     private CheckBox nonstop = null;
     private ProgressDialog progress;
-    private String jsonPath=null;
-
-
+    private String jsonPath = null;
+    private String formYear;
+    private String formMonth;
+    private String formDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,42 +141,36 @@ public class MainActivity extends AppCompatActivity {
 
             });
 
-            moreButton = (Button)findViewById(R.id.more);
             layout = (RelativeLayout)findViewById(R.id.hidden);
-            moreButton.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    if(layout.getVisibility() != View.VISIBLE) {
-                        layout.setVisibility(View.VISIBLE);
-                        moreButton.setText("Λιγοτερα...");
-                    }
-                    else
-                    {
-                        layout.setVisibility(View.GONE);
-                        moreButton.setText("Περισσοτερα...");
-                    }
-                }
-            });
-
             sdf = new SimpleDateFormat("yy-MM-DD");
 
             CalendarView departureDate = (CalendarView) findViewById(R.id.departureDate);
             departureDate.setMinDate(departureDate.getDate());
-            formattedDepartureDate = "20" + sdf.format(departureDate.getDate());
+            Calendar c = Calendar.getInstance();
+            formYear = String.valueOf(c.get(Calendar.YEAR));
+            formMonth = c.get(Calendar.MONTH) < 9 ? '0' + String.valueOf(c.get(Calendar.MONTH) + 1) : String.valueOf(c.get(Calendar.MONTH) + 1);
+            formDay = c.get(Calendar.DAY_OF_MONTH) < 10 ? '0' + String.valueOf(c.get(Calendar.DAY_OF_MONTH)) : String.valueOf(c.get(Calendar.DAY_OF_MONTH));
+            formattedDepartureDate = formYear + "-" + formMonth + "-" + formDay;
             departureDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
                 public void onSelectedDayChange(@NonNull CalendarView departureDate, int year, int month, int day) {
-                    formattedDepartureDate = "20" + sdf.format(new Date(year, month, day));
+                    formYear = String.valueOf(year);
+                    formMonth = month < 9 ? "0" + String.valueOf(month + 1) : String.valueOf(month + 1);
+                    formDay = day < 10 ? "0" + String.valueOf(day) : String.valueOf(day);
+                    formattedDepartureDate = formYear + "-" + formMonth + "-" + formDay;
                 }
             });
 
-//            CalendarView arrivalDate = (CalendarView) findViewById(R.id.arrivalDate);
-//            arrivalDate.setMinDate(arrivalDate.getDate());
-//            formattedArrivalDate = "20" + sdf.format(arrivalDate.getDate());
-//            arrivalDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
-//                public void onSelectedDayChange(@NonNull CalendarView arrivalDate, int year, int month, int day) {
-//                    formattedArrivalDate = "20" + sdf.format(new Date(year, month, day));
-//                }
-//            });
+            CalendarView arrivalDate = (CalendarView) findViewById(R.id.arrivalDate);
+            arrivalDate.setMinDate(arrivalDate.getDate());
+            formattedArrivalDate = formYear + "-" + formMonth + "-" + formDay;
+            arrivalDate.setOnDateChangeListener( new CalendarView.OnDateChangeListener() {
+                public void onSelectedDayChange(@NonNull CalendarView arrivalDate, int year, int month, int day) {
+                    formYear = String.valueOf(year);
+                    formMonth = month < 9 ? "0" + String.valueOf(month + 1) : String.valueOf(month + 1);
+                    formDay = day < 10 ? "0" + String.valueOf(day) : String.valueOf(day);
+                    formattedArrivalDate = formYear + "-" + formMonth + "-" + formDay;
+                }
+            });
 
             numOfAdults = (TextView)findViewById(R.id.numOfAdults);
             numOfKids = (TextView)findViewById(R.id.numOfKids);
@@ -184,61 +180,68 @@ public class MainActivity extends AppCompatActivity {
 
             progress = new ProgressDialog(this);
             progress.setTitle("Αναζήτηση πτήσεων");
-            progress.setMessage("Παρακαλώ περιμένε...");
+            progress.setMessage("H αναζήτηση ενδέχεται να καθυστερήσει. Παρακαλούμε περιμένετε.");
             progress.setCancelable(false);
-
-            Button findButton = (Button)findViewById(R.id.find);
-            findButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    String[] temp;
-                    if (!originAirport.getText().toString().equals("")) {
-                        temp = originAirport.getText().toString().split("\\[");
-                        origin = temp[1].replace("]", "");
-                    } else origin = null;
-                    if (!destinationAirport.getText().toString().equals("")) {
-                        temp = destinationAirport.getText().toString().split("\\[");
-                        destination = temp[1].replace("]", "");
-                    } else destination = null;
-                    /*Date d1 = null;
-                    Date d2 = null;
-                    try {
-                        d1 = sdf.parse(formattedDepartureDate);
-                        d2 = sdf.parse(formattedArrivalDate);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }*/
-                    if (origin == null) {
-                        Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει αφετηρία", Toast.LENGTH_SHORT).show();
-                    } else if (destination == null) {
-                        Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει προορισμό", Toast.LENGTH_SHORT).show();
-                    } else if (origin.equals(destination)) {
-                        Toast.makeText(MainActivity.this, "Η αφετηρία δεν μπορεί να είναι ίδια με τον προορισμό", Toast.LENGTH_SHORT).show();
-                    }
-//                    else if (d1!=null && d2!=null && d2.before(d1)) {
-//                        Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
-//                    }
-                    else {
-                        jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
-                        + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
-                        + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
-//                      if (formattedArrivalDate != null) jsonPath += "&arrival_date=" + formattedArrivalDate;
-                        try {
-                            if (new isResponseValid().execute(jsonPath).get()) Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
-                            else
-                            {
-                                progress.show();
-                                new jsonResults().execute(jsonPath);
-                            }
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_flight_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.moreOptions:
+                item.setVisible(false);
+                layout.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι τώρα διαθέσιμες", Toast.LENGTH_SHORT).show();
+                return true;
+
+            case R.id.searchFlights:
+                String[] temp;
+                if (!originAirport.getText().toString().equals("")) {
+                    temp = originAirport.getText().toString().split("\\[");
+                    origin = temp[1].replace("]", "");
+                } else origin = null;
+                if (!destinationAirport.getText().toString().equals("")) {
+                    temp = destinationAirport.getText().toString().split("\\[");
+                    destination = temp[1].replace("]", "");
+                } else destination = null;
+                Date d1 = null;
+                Date d2 = null;
+                try {
+                    d1 = sdf.parse(formattedDepartureDate);
+                    d2 = sdf.parse(formattedArrivalDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if (origin == null) {
+                    Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει αφετηρία", Toast.LENGTH_SHORT).show();
+                } else if (destination == null) {
+                    Toast.makeText(MainActivity.this, "Δεν έχετε επιλέξει προορισμό", Toast.LENGTH_SHORT).show();
+                } else if (origin.equals(destination)) {
+                    Toast.makeText(MainActivity.this, "Η αφετηρία είναι ίδια με τον προορισμό", Toast.LENGTH_SHORT).show();
+                }
+                else if (d1!=null && d2!=null && d2.before(d1)) {
+                    Toast.makeText(MainActivity.this, "Η ημερομηνία επιστροφής είναι πριν την ημερομηνία αναχώρησης", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    progress.show();
+                    jsonPath = "https://api.sandbox.amadeus.com/v1.2/flights/low-fare-search?apikey=" + apiKey + "&origin=" + origin + "&destination="
+                            + destination + "&departure_date=" + formattedDepartureDate + "&currency=EUR" + "&adults=" + numOfAdults.getText() + "&children="
+                            + numOfKids.getText() + "&infants=" + numOfBabies.getText() + "&nonstop=" + nonstop.isChecked();
+                    if (formattedArrivalDate != null) jsonPath += "&return_date=" + formattedArrivalDate;
+                    new isResponseValid().execute(jsonPath);
+                }
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -285,6 +288,81 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    public JSONArray findFlightsByCategory(JSONArray flights, String flightType) {
+        JSONObject flight;
+        JSONArray numOfFlights;
+        JSONObject flightDetails;
+        JSONArray flightsArray;
+        JSONArray formattedFlights = new JSONArray();
+
+        try {
+            String flightDuration = null;
+            String midDestination = null;
+
+            String buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + origin);
+            String formattedOrigin = new JSONArray(buffer).getJSONObject(0).getString("name");
+            String[] temp = formattedOrigin.split(",");
+            formattedOrigin = temp[0];
+            buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + destination);
+            String formattedDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
+            String[] temp2 = formattedDestination.split(",");
+            formattedDestination = temp2[0];
+            int a = 0;
+
+            for (int i=0; i<flights.length(); i++) {
+                flight = flights.getJSONObject(i);
+                numOfFlights = flight.getJSONArray("itineraries");
+                for (int j = 0; j < numOfFlights.length(); j++) {
+                    formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
+                    flightsArray = numOfFlights.getJSONObject(j).getJSONObject(flightType).getJSONArray("flights");
+                    for (int k = 0; flightsArray.length() > k; k++) {
+                        flightDetails = flightsArray.getJSONObject(k);
+                        if (flightsArray.length() > 1) {
+                            buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + flightsArray.getJSONObject(k).getJSONObject("destination").getString("airport"));
+                            midDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
+                            String[] temp3 = midDestination.split(",");
+                            midDestination = temp3[0];
+                        }
+                        buffer = httpRequest("https://iatacodes.org/api/v6/airlines?api_key=" + IATA_API_KEY + "&code=" + flightDetails.getString("operating_airline"));
+                        String company = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+                        try {
+                            Date dStart = format.parse(flightDetails.getString("departs_at"));
+                            Date dEnd = format.parse(flightDetails.getString("arrives_at"));
+                            long diffM = (dEnd.getTime() - dStart.getTime()) / 1000 / 60;
+                            long diffH = diffM / 60;
+                            if (diffH != 0) {
+                                diffM = diffM - diffH * 60;
+                                if (diffM != 0) flightDuration = diffH + "h" + diffM + "mins";
+                                else flightDuration = diffH + "h";
+                            } else {
+                                flightDuration = diffM + "mins";
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        formattedFlights.getJSONObject(a).getJSONArray("flights").put(new JSONObject());
+                        formattedFlights.getJSONObject(a).getJSONArray("flights").getJSONObject(k)
+                                .put("origin", flightType.equals("outbound") ? formattedOrigin : formattedDestination)
+                                .put("destination", flightType.equals("outbound") ? formattedDestination : formattedOrigin)
+                                .put("company", company)
+                                .put("departureTime", flightDetails.getString("departs_at"))
+                                .put("arrivalTime", flightDetails.getString("arrives_at"))
+                                .put("flightDuration", flightDuration)
+                                .put("seatsRemaining", flightDetails.getJSONObject("booking_info").getString("seats_remaining"))
+                                .put("intermediateStop", midDestination)
+                                .put("price", flight.getJSONObject("fare").getString("total_price") + " €")
+                                .put("index", Integer.toString(a));
+                    }
+                    a++;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return formattedFlights;
+    }
+
     public class isResponseValid extends AsyncTask<String,String,Boolean> {
 
         protected Boolean doInBackground(String... params) {
@@ -294,20 +372,27 @@ public class MainActivity extends AppCompatActivity {
                 Map<String, List<String>> map = conn.getHeaderFields();
                 for (Map.Entry<String, List<String>> entry : map.entrySet())
                     if (entry.getValue().get(0).equals("HTTP/1.1 400 Bad Request")) {
-                        return true;
+                        return false;
                     }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return false;
+            return true;
+        }
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                Toast.makeText(MainActivity.this, "Δεν υπάρχουν δρομολόγια για την συγκεκριμένη ημερομηνία και προορισμό", Toast.LENGTH_SHORT).show();
+                progress.dismiss();
+            } else {
+                new jsonResults().execute(jsonPath);
+            }
         }
     }
 
-    public class jsonAirports extends AsyncTask<String,String,String>
-    {
+    public class jsonAirports extends AsyncTask<String,String,String> {
         protected String doInBackground(String... params)
         {
-            String countryJsonStr = null;
+            String countryJsonStr;
             try {
                 countryJsonStr = httpRequest(params[0]);
 
@@ -333,87 +418,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class jsonResults extends AsyncTask<String,String,String>
-    {
+    public class jsonResults extends AsyncTask<String,String,String> {
         protected String doInBackground(String... params)
         {
             try {
-                JSONArray formattedFlights = new JSONArray();
+
                 String buffer = httpRequest(params[0]);
-
                 JSONArray results = new JSONObject(buffer).getJSONArray("results");
-
-                JSONObject flight;
-                JSONArray numOfFlights;
-                JSONObject flightDetails;
-                JSONArray outboundFlights;
-
-                String flightDuration = null;
-                String midDestination = null;
-
-                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + origin);
-                String formattedOrigin = new JSONArray(buffer).getJSONObject(0).getString("name");
-                String[] temp = formattedOrigin.split(",");
-                formattedOrigin = temp[0];
-                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + destination);
-                String formattedDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
-                String[] temp2 = formattedDestination.split(",");
-                formattedDestination = temp2[0];
-                System.out.println(formattedOrigin+formattedDestination);
-
-                for (int i=0; i<results.length(); i++) {
-                    flight = results.getJSONObject(i);
-                    numOfFlights = flight.getJSONArray("itineraries");
-                    for (int j = 0; j < numOfFlights.length(); j++) {
-                        formattedFlights.put(new JSONObject().put("flights", new JSONArray()));
-                        outboundFlights = numOfFlights.getJSONObject(j).getJSONObject("outbound").getJSONArray("flights");
-                        for (int k = 0; outboundFlights.length() > k; k++)
-                        {
-                            flightDetails = outboundFlights.getJSONObject(k);
-                            if (outboundFlights.length() > 1) {
-                                buffer = httpRequest("http://nano.aviasales.ru/places_en?" + "&term=" + outboundFlights.getJSONObject(k).getJSONObject("destination").getString("airport"));
-                                midDestination = new JSONArray(buffer).getJSONObject(0).getString("name");
-                                String[] temp3 = midDestination.split(",");
-                                midDestination = temp3[0];
-                            }
-                            buffer = httpRequest("https://iatacodes.org/api/v6/airlines?api_key=" + IATA_API_KEY + "&code=" + flightDetails.getString("operating_airline"));
-                            String company = new JSONObject(buffer).getJSONArray("response").getJSONObject(0).getString("name");
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-                            try {
-                                Date dStart = format.parse(flightDetails.getString("departs_at"));
-                                Date dEnd = format.parse(flightDetails.getString("arrives_at"));
-                                long diffM = (dEnd.getTime() - dStart.getTime()) / 1000 / 60;
-                                long diffH = diffM / 60;
-                                if (diffH != 0) {
-                                    diffM = diffM - diffH * 60;
-                                    if (diffM != 0) flightDuration = diffH + "h" + diffM + "mins";
-                                    else flightDuration = diffH + "h";
-                                } else {
-                                    flightDuration = diffM + "mins";
-                                }
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                            formattedFlights.getJSONObject(a).getJSONArray("flights").put(new JSONObject());
-                            formattedFlights.getJSONObject(a).getJSONArray("flights").getJSONObject(k)
-                                .put("origin", formattedOrigin)
-                                .put("destination", formattedDestination)
-                                .put("company", company)
-                                .put("departureTime", flightDetails.getString("departs_at"))
-                                .put("arrivalTime", flightDetails.getString("arrives_at"))
-                                .put("flightDuration", flightDuration)
-                                .put("seatsRemaining", flightDetails.getJSONObject("booking_info").getString("seats_remaining"))
-                                .put("intermediateStop", midDestination)
-                                .put("price", flight.getJSONObject("fare").getString("total_price") + " €")
-                                .put("index", Integer.toString(a));
-                        }
-                    a++;
-                    }
-                }
+                JSONArray formattedOutboundFlights = findFlightsByCategory(results, "outbound");
+                JSONArray formattedInboundFlights = findFlightsByCategory(results, "inbound");
                 progress.dismiss();
 
                 Intent i = new Intent(getApplicationContext(), FlightResults.class);
-                i.putExtra("flights", formattedFlights.toString());
+                i.putExtra("Outbound Flights", formattedOutboundFlights.toString());
+                i.putExtra("Inbound Flights", formattedInboundFlights.toString());
                 startActivity(i);
                 return "Success";
             } catch (JSONException e) {
