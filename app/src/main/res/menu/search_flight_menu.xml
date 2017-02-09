@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/moreOptions"
+        android:icon="@drawable/ic_add_circle_outline_white_48dp"
+        android:title="Αναχώρηση"
+        app:showAsAction="always"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <item
+        android:id="@+id/searchFlights"
+        android:icon="@drawable/ic_flight_takeoff_white_48dp"
+        android:title="Αναχώρηση"
+        app:showAsAction="always"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</menu>

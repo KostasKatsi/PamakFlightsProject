@@ -34,5 +34,6 @@
         android:layout_below="@+id/flightDate"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:paddingTop="20dp" />
+        android:paddingTop="20dp"
+        android:descendantFocusability="blocksDescendants"/>
 </RelativeLayout>
