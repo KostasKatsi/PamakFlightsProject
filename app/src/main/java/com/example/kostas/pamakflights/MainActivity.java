@@ -67,11 +67,13 @@ public class MainActivity extends AppCompatActivity {
     private String formYear;
     private String formMonth;
     private String formDay;
+    private boolean extraOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportActionBar().setTitle("Αναχωρήσεις");
 
         try {
             JSONObject obj2 = new JSONObject(loadJSONFromAsset("Country Codes"));
@@ -98,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             destinationAirport.setThreshold(1);
 
             apiKey = FLIGHTS_API_KEY;
+            extraOptions = true;
 
             originAirport.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 
@@ -197,9 +200,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.moreOptions:
-                item.setVisible(false);
-                layout.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι τώρα διαθέσιμες", Toast.LENGTH_SHORT).show();
+                if (!extraOptions) {
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_remove_circle_outline_white_48dp));
+                    layout.setVisibility(View.VISIBLE);
+                    Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι τώρα διαθέσιμες", Toast.LENGTH_SHORT).show();
+                } else {
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_add_circle_outline_white_48dp));
+                    layout.setVisibility(View.INVISIBLE);
+                }
                 return true;
 
             case R.id.searchFlights:
