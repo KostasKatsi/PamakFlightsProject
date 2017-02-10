@@ -30,7 +30,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:textSize="30sp" />
+                android:textSize="30sp"
+                android:textColor="?android:attr/colorPrimary" />
 
             <TextView
                 android:id="@+id/text1"
@@ -81,7 +82,8 @@
                 android:layout_marginTop="38dp"
                 android:layout_below="@+id/autoCompleteTextView2"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                android:textColor="?android:attr/colorPrimary" />
 
             <TextView
                 android:id="@+id/textView5"
@@ -152,7 +154,8 @@
                 android:textSize="30sp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/departureDate"/>
+                android:layout_below="@+id/departureDate"
+                android:textColor="?android:attr/colorPrimary" />
 
             <RelativeLayout
                 android:layout_width="fill_parent"
@@ -253,7 +256,9 @@
                 android:textSize="30sp"
                 android:layout_below="@+id/autoCompleteTextView4"
                 android:layout_alignLeft="@+id/departureDate"
-                android:layout_alignStart="@+id/departureDate" />
+                android:layout_alignStart="@+id/departureDate"
+                android:textColor="?android:attr/colorPrimary"
+                android:layout_marginTop="40dp"/>
 
 
         </RelativeLayout>
