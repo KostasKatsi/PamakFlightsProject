@@ -19,7 +19,7 @@
         android:layout_width="93dp"
         android:layout_height="wrap_content"
         android:id="@+id/departureLabelText"
-        android:text="Αναχώρηση: "
+        android:text="Εταιρία: "
         android:layout_alignBaseline="@+id/infoField"
         android:layout_alignBottom="@+id/infoField"
         android:layout_alignParentLeft="true"

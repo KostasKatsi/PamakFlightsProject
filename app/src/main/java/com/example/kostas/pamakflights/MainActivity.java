@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             destinationAirport.setThreshold(1);
 
             apiKey = FLIGHTS_API_KEY;
-            extraOptions = true;
+            extraOptions = false;
 
             originAirport.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 
@@ -204,9 +204,12 @@ public class MainActivity extends AppCompatActivity {
                     item.setIcon(getResources().getDrawable(R.drawable.ic_remove_circle_outline_white_48dp));
                     layout.setVisibility(View.VISIBLE);
                     Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι τώρα διαθέσιμες", Toast.LENGTH_SHORT).show();
+                    extraOptions = true;
                 } else {
                     item.setIcon(getResources().getDrawable(R.drawable.ic_add_circle_outline_white_48dp));
                     layout.setVisibility(View.INVISIBLE);
+                    Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι απενεργοποιημένες", Toast.LENGTH_SHORT).show();
+                    extraOptions = false;
                 }
                 return true;
 
