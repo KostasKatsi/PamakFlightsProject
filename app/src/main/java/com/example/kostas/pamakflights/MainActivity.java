@@ -197,11 +197,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.moreOptions:
-                item.setVisible(false);
-                layout.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι τώρα διαθέσιμες", Toast.LENGTH_SHORT).show();
+                if(!layout.isShown()) {
+                    layout.setVisibility(View.VISIBLE);
+                    Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι ενεργοποιημένες", Toast.LENGTH_SHORT).show();
+                }
                 return true;
 
+            case  R.id.lessOptions:
+                if(layout.isShown()) {
+                    layout.setVisibility(View.GONE);
+                    Toast.makeText(MainActivity.this, "Οι επιπλέον επιλογές πτήσης είναι απενεργοποιημένες", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            
             case R.id.searchFlights:
                 String[] temp;
                 if (!originAirport.getText().toString().equals("")) {
